@@ -1,0 +1,87 @@
+.credit-risk-container {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background-color: #f9f9f9;
+}
+ 
+.top-section {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+ 
+.left-block, .right-block {
+    padding: 20px;
+    border-radius: 5px;
+    width: 48%;
+}
+ 
+.rating-text {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+ 
+.rating-high-risk {
+    display: flex;
+    align-items: center;
+}
+ 
+.rating-high-risk h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 10px;
+}
+ 
+ 
+.high-risk {
+    display: inline-block;
+    background-color: red;
+    padding: 5px;
+    color: white;
+    text-align: end;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+ 
+.financial-embarrassment {
+    display: inline-flex;
+    align-items: center;
+    background-color:rgb(255, 145, 0);
+    padding: 5px;
+    color: black;
+    border-radius: 3px;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+ 
+.bottom-block {
+    display: flex;
+    justify-content: space-between;
+}
+ 
+.failure-score, .payment-behaviour {
+    background-color: rgb(173, 230, 186);
+    color: #006600;
+    padding: 20px;
+    border-radius: 5px;
+    width: 48%;
+}
+ 
+.payment-behaviour {
+    background-color: #d21414;
+    color: #f9f9f9;
+}
+ 
+.failure-score h2, .payment-behaviour p {
+    font-weight: bold;
+}
+ 
+.failure-score p, .payment-behaviour h2 {
+    font-size: 15px;
+    font-weight: bold;
+}
+ 
+.failure-score p {
+    color: black;
+}
