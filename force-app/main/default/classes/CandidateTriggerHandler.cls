@@ -25,22 +25,15 @@ public with sharing class CandidateTriggerHandler {
         }
     }
     //Question 3
-    public static void ApplicationDate(List<Candidate__c> canList) {
+    public static void applicationDate(List<Candidate__c> canList){
         List<Candidate__c> candidatesToUpdate = new List<Candidate__c>();
-
-        for(Candidate__c can : canList) {
-            // Convert Datetime (CreatedDate) to Date before assigning
-            Date createdDateAsDate = can.CreatedDate.date();  // Correct way to convert Datetime to Date
-            
-            // Ensure Application_Date__c is set to the system-created CreatedDate (converted to Date)
-            if (can.Application_Date__c != createdDateAsDate) {
-                can.Application_Date__c = createdDateAsDate;
-                candidatesToUpdate.add(can);
+        for(Candidate__c can: canList){
+            if(can.Application_Date__c == null || can.Application_Date__c != null){
+                Candidate__c updatedCandidate = new Candidate__c(Id = can.Id, Application_Date__c = can.CreatedDate.date());
+                candidatesToUpdate.add(updatedCandidate);
             }
         }
-
-        // Update records if there are any changes to be made
-        if (!candidatesToUpdate.isEmpty()) {
+        if(!candidatesToUpdate.isEmpty()){
             update candidatesToUpdate;
         }
     }

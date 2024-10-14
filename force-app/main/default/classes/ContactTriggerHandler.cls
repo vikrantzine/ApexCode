@@ -1,27 +1,20 @@
+//Task of Mentor 2
 public with sharing class ContactTriggerHandler {
-    //Task of Mentor 2
-    public static void countConRelToAcc(List<Contact>newCon,List<Contact>oldCon){
-        Set <Id> accIds=new Set<Id>();
-        if(newCon!=NULL){
-            for(Contact con:newCon){
-                if(con.AccountId!=NULL){
-                    accIds.add(con.AccountId);
-                }
+    public static void totalContactCount(List<Contact> conList){
+        List<Account> accList = new List<Account>();
+        Set<Id> accIds = new Set<Id>();
+        for(Contact con : conList){
+            if(con.AccountId != null){
+                accIds.add(con.AccountId);
             }
         }
-        if(oldCon!=NULL){
-            for(Contact con:oldCon){
-                if(con.AccountId!=NULL){
-                    accIds.add(con.AccountId);
-                }
-            }
+        for (Account acc : [SELECT Id, (SELECT Id FROM Contacts) FROM Account WHERE Id IN :accIds]) {
+        acc.Count_Number_Of_Contact__c = acc.Contacts.size();
+        accList.add(acc);
         }
-        if(!accIds.isEmpty()){
-            List<Account>updatedAcc=[SELECT Id,(SELECT Id FROM Contacts)FROM Account WHERE Id IN:accIds];
-            for(Account acc:updatedAcc){
-                acc.Count_Contact__c=acc.Contacts.size();
-            }
-            update updatedAcc;
+ 
+        if(!accList.isEmpty()){
+            update accList;
         }
     }
 }

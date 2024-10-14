@@ -1,7 +1,7 @@
 //Assignment-1
 public with sharing class AccountTriggerHandl {
     //Question 1
-    public static void convertBillingToShipping(List<Account>accList){
+    public static void convertBillingToShipping(List<Account> accList){
         for(Account acc:accList){
                 acc.ShippingStreet=acc.BillingStreet;
                 acc.ShippingCity=acc.BillingCity;
@@ -11,6 +11,7 @@ public with sharing class AccountTriggerHandl {
                 acc.Industry='Engineering';
         }
     }
+
     //Question 2
     public static void updateEngineeringToFinance(List<Account>accList, Map<Id,Account>oldMap){
         for(Account acc:accList){
@@ -19,8 +20,9 @@ public with sharing class AccountTriggerHandl {
             }
         }
     }
+
     //Question 3
-    public static void preventAccDeletion(Map<Id,Account>oldMap){
+    public static void preventAccDeletion(Map<Id,Account> oldMap){
         for(Account acc:oldMap.values()){
             if(acc.Active__c=='Yes'){
                 acc.addError('Cannot Delete Account, Please uncheck Active...');
@@ -31,6 +33,7 @@ public with sharing class AccountTriggerHandl {
             }
         }
     }
+
     //Question 4
     public static void createTaskForHighRevenue(List<Account> accList){
         List<Task>taskList=new List<Task>();
@@ -48,8 +51,9 @@ public with sharing class AccountTriggerHandl {
             insert taskList;
         }
     }
+
     //Question 5
-    public static void updateConPhoneOnAccChange(List<Account>accList){
+    public static void updateConPhoneOnAccChange(List<Account> accList){
         List<Contact>conList=new List<Contact>();
         for(Account acc:accList){
             Account oldAcc=(Account)Trigger.oldMap.get(acc.Id);
@@ -66,8 +70,9 @@ public with sharing class AccountTriggerHandl {
             update conList;
         }
     }
+
     //Question 6
-    public static void sendMailOnAccDeletion(Map<Id,Account>oldMap){
+    public static void sendMailOnAccDeletion(Map<Id,Account> oldMap){
         List<Messaging.SingleEmailMessage>emails=new List<Messaging.SingleEmailMessage>();
         for(Account acc:oldMap.values()){
             Messaging.SingleEmailMessage email=new Messaging.SingleEmailMessage();
@@ -80,11 +85,64 @@ public with sharing class AccountTriggerHandl {
             Messaging.sendEmail(emails);
         }
     }
+
     //Task of Mentor 1
-    public static void updateDescription(List<Account>accList){
+    public static void updateDescription(List<Account> accList){
         for(Account acc:accList){
             if(acc.Name!=NULL || acc.AccountNumber!=NULL || acc.Industry!=NULL){
                 acc.Description='Test Account:' + acc.Name + ' Account Number:' + acc.AccountNumber + ' Industry:' + acc.Industry;
+            }
+        }
+    }
+
+    //Task 3
+    public static void updatePhoneWithCountryCode(List<Account> accList, Map<Id, Account> oldAccountMap) {
+        Map<String, String> countryCodeMap = new Map<String, String>();
+        //Custom Metadata
+        for (Country_Code__mdt countryCodeMdt : [SELECT Country__c, Phone_Code__c FROM Country_Code__mdt]) {
+            countryCodeMap.put(countryCodeMdt.Country__c, countryCodeMdt.Phone_Code__c);
+        }
+
+        Map<Id, String> accountCountryCodes = new Map<Id, String>();
+
+        for (Account acc : accList) {
+            Account oldAcc = oldAccountMap != null ? oldAccountMap.get(acc.Id) : null;
+
+            Boolean countryChanged = oldAcc != null && (oldAcc.BillingCountry != acc.BillingCountry || oldAcc.ShippingCountry != acc.ShippingCountry);
+
+            if (acc.Phone != null || countryChanged) {
+                String countryCode = countryCodeMap.get(acc.BillingCountry);
+                if (countryCode == null) {
+                    countryCode = countryCodeMap.get(acc.ShippingCountry);
+                }
+
+                if (countryCode != null) {
+                    String existingNumber = acc.Phone != null ? acc.Phone.replaceAll('^\\+\\d+\\s+', '') : ''; //Remove prev country code
+                    acc.Phone = countryCode + ' ' + existingNumber;
+                    accountCountryCodes.put(acc.Id, countryCode);
+                }
+            }
+        }
+
+        //Update rel Contact phone
+        if (!accountCountryCodes.isEmpty()) {
+            List<Contact> contactsToUpdate = new List<Contact>();
+
+            for (Contact c : [SELECT Id, Phone, AccountId FROM Contact WHERE AccountId IN :accountCountryCodes.keySet()]) {
+                String countryCode = accountCountryCodes.get(c.AccountId);
+                if (countryCode != null) {
+                    String existingNumber = c.Phone != null ? c.Phone.replaceAll('^\\+\\d+\\s+', '') : ''; //Remove prev country code
+                    c.Phone = countryCode + ' ' + existingNumber;
+                    contactsToUpdate.add(c);
+                }
+            }
+
+            if (!contactsToUpdate.isEmpty()) {
+                try {
+                    update contactsToUpdate;
+                } catch (DmlException e) {
+                    System.debug('Failed to update contacts: ' + e.getMessage());
+                }
             }
         }
     }

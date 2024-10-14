@@ -1,46 +1,89 @@
 @isTest
-    //Task of Mentor 2
-private class ContactTriggerHandlerTest {
+public class ContactTriggerHandlerTest {
+    static Account testAccount;
+    static List<Contact> testContacts;
+
+    @testSetup
+    static void setup() {
+        // Create an Account for the tests
+        testAccount = new Account(Name = 'Test Account', Count_Contact__c = 0); // Initialize Count_Contact__c
+        insert testAccount;
+
+        // Create Contacts associated with the Account
+        testContacts = new List<Contact>{
+            new Contact(FirstName = 'John', LastName = 'Doe', AccountId = testAccount.Id),
+            new Contact(FirstName = 'Jane', LastName = 'Doe', AccountId = testAccount.Id)
+        };
+        insert testContacts;
+    }
+
     @isTest
-    static void testCountConRelToAcc() {
-        // Create a new account
-        Account acc = new Account(Name = 'Test Account');
-        insert acc;
+    static void testContactInsert() {
+        // Create a new contact to trigger the insertion logic
+        Contact newContact = new Contact(FirstName = 'Tom', LastName = 'Smith', AccountId = testAccount.Id);
+        insert newContact;
 
-        // Create contacts related to the account
-        Contact con1 = new Contact(FirstName = 'John', LastName = 'Doe', AccountId = acc.Id);
-        Contact con2 = new Contact(FirstName = 'Jane', LastName = 'Doe', AccountId = acc.Id);
-        insert new List<Contact>{con1, con2};
+        // Re-query the Account to verify the Count_Contact__c value
+        Account accountAfterInsert = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :testAccount.Id];
 
-        // Verify that the account contact count is updated
-        acc = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :acc.Id];
-        System.assertEquals(2, acc.Count_Contact__c, 'The contact count should be 2 after inserting contacts.');
+        // Assert the Count_Contact__c field should be 3 after inserting the new Contact
+        System.assertEquals(3, accountAfterInsert.Count_Contact__c, 'Count_Contact__c should be 3 after inserting a contact');
+    }
 
-        // Update a contact
-        con1.FirstName = 'Johnathan';
-        update con1;
+    @isTest
+    static void testContactUpdate() {
+        // Update the first Contact
+        Contact contactToUpdate = testContacts[0];
+        contactToUpdate.LastName = 'Doe Updated';
+        update contactToUpdate;
 
-        // Verify that the account contact count remains unchanged
-        acc = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :acc.Id];
-        System.assertEquals(2, acc.Count_Contact__c, 'The contact count should remain 2 after updating a contact.');
+        // Re-query the Account to verify Count_Contact__c remains the same
+        Account accountAfterUpdate = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :testAccount.Id];
 
-        // Delete a contact
-        delete con2;
+        // Assert the Count_Contact__c field should still be 2 after updating the Contact
+        System.assertEquals(2, accountAfterUpdate.Count_Contact__c, 'Count_Contact__c should still be 2 after updating a contact');
+    }
 
-        // Verify that the account contact count is updated after deletion
-        acc = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :acc.Id];
-        System.assertEquals(1, acc.Count_Contact__c, 'The contact count should be 1 after deleting a contact.');
+    @isTest
+    static void testContactDelete() {
+        // Delete the first Contact
+        Contact contactToDelete = testContacts[0];
+        delete contactToDelete;
 
-        // Test for a contact with no related account
-        Contact con3 = new Contact(FirstName = 'Alice', LastName = 'Smith');
-        insert con3;
+        // Re-query the Account to verify Count_Contact__c value
+        Account accountAfterDelete = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :testAccount.Id];
 
-        // Verify that the account contact count remains unchanged
-        acc = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :acc.Id];
-        System.assertEquals(1, acc.Count_Contact__c, 'The contact count should still be 1 after inserting a contact with no related account.');
+        // Assert the Count_Contact__c field should now be 1 after deleting the Contact
+        System.assertEquals(1, accountAfterDelete.Count_Contact__c, 'Count_Contact__c should be 1 after deleting a contact');
+    }
 
-        // Clean up
-        delete new List<Contact>{con1, con3};
-        delete acc; // Cleaning up the account as well
+    @isTest
+    static void testContactUndelete() {
+        // Delete the first Contact first to then undelete it
+        Contact contactToDelete = testContacts[0];
+        delete contactToDelete;
+
+        // Undelete the Contact
+        Database.UndeleteResult undeleteResult = Database.undelete(contactToDelete.Id, false);
+        System.assert(undeleteResult.isSuccess(), 'Undelete should be successful');
+
+        // Re-query the Account to verify Count_Contact__c value
+        Account accountAfterUndelete = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :testAccount.Id];
+
+        // Assert the Count_Contact__c field should be back to 2 after undeleting the Contact
+        System.assertEquals(2, accountAfterUndelete.Count_Contact__c, 'Count_Contact__c should be 2 after undeleting a contact');
+    }
+
+    @isTest
+    static void testHandlerDirectCall() {
+        // Call the handler method directly
+        Set<Id> accountIds = new Set<Id>{testAccount.Id};
+        ContactTriggerHandler.countConRelToAcc(accountIds);
+
+        // Re-query the Account to verify Count_Contact__c value
+        Account accountAfterDirectCall = [SELECT Id, Count_Contact__c FROM Account WHERE Id = :testAccount.Id];
+
+        // Assert the Count_Contact__c should still be 2 since we haven't changed contacts directly
+        System.assertEquals(2, accountAfterDirectCall.Count_Contact__c, 'Count_Contact__c should still be 2 after direct handler call');
     }
 }

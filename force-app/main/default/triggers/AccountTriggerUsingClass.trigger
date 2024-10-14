@@ -10,7 +10,7 @@ trigger AccountTriggerUsingClass on Account (before insert,after insert,before u
 
     if(trigger.isUpdate){
         if(trigger.isBefore){
-            AccountTriggerHandler.updatePhone(Trigger.new,Trigger.oldMap);
+            //AccountTriggerHandler.updatePhone(Trigger.new,Trigger.oldMap);
             AccountTriggerHandler.populateRating1(Trigger.New,Trigger.oldMap);
         }
     }

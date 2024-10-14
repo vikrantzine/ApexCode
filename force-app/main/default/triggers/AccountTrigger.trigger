@@ -1,11 +1,12 @@
 //Assignment-1
-trigger AccountTrigger on Account (before insert, before update, before delete, after insert) {
+trigger AccountTrigger on Account (before insert, before update, before delete, after insert, after update) {
     if(Trigger.isBefore){
         if(Trigger.isInsert){
             AccountTriggerHandl.convertBillingToShipping(Trigger.New);  //Question 1
         }
         if(Trigger.isInsert || Trigger.isUpdate){
             AccountTriggerHandl.updateDescription(Trigger.New);  //Mentor Task 1
+            AccountTriggerHandl.updatePhoneWithCountryCode(Trigger.new, Trigger.oldMap);    //Task 3
         }
         if(Trigger.isUpdate){
             AccountTriggerHandl.updateEngineeringToFinance(Trigger.New,Trigger.oldMap);  //Question 2
