@@ -1,6 +1,6 @@
 public with sharing class FutureMethod {
     @future
-    public static void countContact(List<Id>accIds){
+    public static void countContact(List<Id> accIds){
         List<Account>accList=[SELECT Id,Count_Number_Of_Contact__c,(SELECT Id FROM Contacts)FROM Account WHERE Id IN:accIds];
         for(Account acc:accList){
             acc.Count_Number_Of_Contact__c=acc.Contacts.size();
@@ -10,7 +10,7 @@ public with sharing class FutureMethod {
         }
     }
     @future
-    public static void casesBasedOnOrigin(List<Id>accIds){
+    public static void casesBasedOnOrigin(List<Id> accIds){
         List<Account>accList=[SELECT Id,Case_Email__c,Case_Phone__c,Case_Web__c,(SELECT Id,Origin FROM Cases)FROM Account WHERE Id IN:accIds];
         for(Account acc:accList){
             Integer Email=0,Phone=0,Web=0;

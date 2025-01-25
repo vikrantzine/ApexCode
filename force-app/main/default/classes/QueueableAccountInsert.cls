@@ -7,17 +7,14 @@ public with sharing class QueueableAccountInsert implements Queueable{
         this.accList=accList;
     }
     public void execute(QueueableContext context){
-        try{
+        if(accList!=NULL && !accList.isEmpty()){
             insert accList;
-            List<Id>leadIds=new List<Id>();
-            for(Lead lead:[SELECT Id FROM Lead LIMIT 5]){
-                leadIds.add(lead.Id);
-            }
-            if(!leadIds.isEmpty()){
-                System.enqueueJob(new QueueableLeadSourceUpdate(leadIds));   
-            }
-        }catch(DmlException e){
-            System.debug('Error Inserting Accounts'+e.getMessage());
         }
+        List<Id>ldIds=new List<Id>();
+        List<Lead> ldList=[SELECT Id FROM Lead LIMIT 10];
+        for(Lead ld:ldList){
+            ldIds.add(ld.Id);
+        }
+        System.enqueueJob(new QueueableLeadSourceUpdate(ldIds));
     }
 }

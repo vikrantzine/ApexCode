@@ -1,7 +1,7 @@
 //Assignment-4
 public with sharing class CandidateTriggerHandler {
     //Question 1
-    public static void checkCandidateExpectedSal(List<Candidate__c>candList){
+    public static void checkCandidateExpectedSal(List<Candidate__c> candList){
         for(Candidate__c can:candList){
             if(can.Expected_Salary__c==NULL){
                 can.Expected_Salary__c.addError('Candidate Excpected Salary is Missing...');
@@ -9,7 +9,7 @@ public with sharing class CandidateTriggerHandler {
         }
     }
     //Question 2
-    public static void checkJobIsActive(List<Candidate__c>canList){
+    public static void checkJobIsActive(List<Candidate__c> canList){
         set<Id>jobIds=new set<Id>();
         for(Candidate__c can:canList){
             if(can.Job__c!=NULL){
@@ -38,7 +38,7 @@ public with sharing class CandidateTriggerHandler {
         }
     }
     //Question 4
-    public static void activeJobNotDelete(List<Job__c>jobList){
+    public static void activeJobNotDelete(List<Job__c> jobList){
         for(Job__c job:jobList){
             if(job.Active__c==true){
                 job.addError('This Job is Active cannot be Deleted...');

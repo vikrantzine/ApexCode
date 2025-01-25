@@ -13,7 +13,7 @@ public with sharing class AccountTriggerHandl {
     }
 
     //Question 2
-    public static void updateEngineeringToFinance(List<Account>accList, Map<Id,Account>oldMap){
+    public static void updateEngineeringToFinance(List<Account> accList, Map<Id,Account> oldMap){
         for(Account acc:accList){
             if(acc.Industry == 'Finance' && oldMap.get(acc.Id).Industry == 'Engineering'){
                 acc.Active__c='Yes';
@@ -22,14 +22,18 @@ public with sharing class AccountTriggerHandl {
     }
 
     //Question 3
-    public static void preventAccDeletion(Map<Id,Account> oldMap){
-        for(Account acc:oldMap.values()){
+    public static void preventAccDeletion(List<Account> accList){
+        Set<Id>accSet=new Set<Id>();
+        for(Account acc:accList){
+            accSet.add(acc.Id);
             if(acc.Active__c=='Yes'){
-                acc.addError('Cannot Delete Account, Please uncheck Active...');
+                acc.addError('Please check your Account Status is Active...');
             }
-            Integer oppCount=[SELECT COUNT() FROM Opportunity WHERE AccountId=:acc.Id];
-            if(oppCount>0){
-                acc.addError('Cannot Delete an Account with associate Opportunity...');
+        }
+        List<Opportunity>oppList=[SELECT Id,AccountId FROM Opportunity WHERE AccountId =:accSet];
+        if(!oppList.isEmpty()){
+            for(Account acc:accList){
+                acc.addError('Please Check Your Account Have Related Opportunity...');
             }
         }
     }
@@ -53,28 +57,35 @@ public with sharing class AccountTriggerHandl {
     }
 
     //Question 5
-    public static void updateConPhoneOnAccChange(List<Account> accList){
+    public static void updateConPhoneOnAccChange(List<Account> accList, Map<Id,Account> oldMap){
+        Set<Id>accId=new Set<Id>();
         List<Contact>conList=new List<Contact>();
         for(Account acc:accList){
-            Account oldAcc=(Account)Trigger.oldMap.get(acc.Id);
-            if(acc.Phone!=NULL && acc.Phone!=oldAcc.Phone){
-                List<Contact>relCon=[SELECT Id, OtherPhone, HomePhone FROM Contact WHERE AccountId=:acc.Id];
-                for(Contact con:relCon){
-                    con.OtherPhone=oldAcc.Phone;
-                    con.HomePhone= acc.Phone; 
-                    conList.add(con);
-                }
+            Account ac = oldmap.get(acc.id);
+            if( ac.Phone != Null && ac.Phone != acc.Phone){
+                accid.add(acc.id);
             }
         }
-        if(!conList.isEmpty()){
-            update conList;
-        }
+        list<Contact> conl=[select Id,AccountId from Contact where AccountId=: accid];
+            if(!conl.isEmpty()){
+                for( Contact  CON : conl){
+                    for( Account ac: accList){
+                    Account acc = oldmap.get(ac.id);
+                        con.HomePhone=acc.Phone;
+                        con.OtherPhone=ac.Phone;
+                        conList.add(con);
+                    }
+                }
+            }
+            if(!conList.isEmpty()){
+                update conList;
+            }
     }
 
     //Question 6
-    public static void sendMailOnAccDeletion(Map<Id,Account> oldMap){
+    public static void sendMailOnAccDeletion(List<Account> accList){
         List<Messaging.SingleEmailMessage>emails=new List<Messaging.SingleEmailMessage>();
-        for(Account acc:oldMap.values()){
+        for(Account acc:accList){
             Messaging.SingleEmailMessage email=new Messaging.SingleEmailMessage();
             email.setToAddresses(New String[] {'vikrantzine@gmail.com'});
             email.setSubject('Account Deleted '+acc.Name);
@@ -96,7 +107,7 @@ public with sharing class AccountTriggerHandl {
     }
 
     //Task 3
-    public static void updatePhoneWithCountryCode(List<Account> accList, Map<Id, Account> oldAccountMap) {
+    public static void updatePhoneAndRelatedContact(List<Account> accList, Map<Id, Account> oldAccountMap) {
         Map<String, String> countryCodeMap = new Map<String, String>();
         //Custom Metadata
         for (Country_Code__mdt countryCodeMdt : [SELECT Country__c, Phone_Code__c FROM Country_Code__mdt]) {
@@ -144,6 +155,67 @@ public with sharing class AccountTriggerHandl {
                     System.debug('Failed to update contacts: ' + e.getMessage());
                 }
             }
+        }
+    }
+
+    //Task 4
+    public static void updateAccRelContact(List<Account> accList){
+        List<Account>acList=[SELECT Id, (SELECT Id FROM Contacts) FROM Account];
+        for(Account acc:accList){
+            
+        }
+    }
+
+    //Task 5
+    public static void insertAccRelCon(List<Account> accList){
+        List<Contact>conList=new List<Contact>();
+        for(Account acc:accList){
+            if(acc.Number_of_Contact__c != NULL){
+                for(Integer i=1;i<=acc.Number_of_Contact__c;i++){
+                    Contact con=new Contact();
+                    con.AccountId=acc.Id;
+                    con.LastName='Con'+i;
+                    conList.add(con);
+                }
+            }
+        }
+        if(!conList.isEmpty()){
+            insert conList;
+        }
+    }
+
+    //Task 2 Try
+    public static void countCon(List<Account> accList){
+        Set<Id>accIds=new Set<Id>();
+        for(Account acc:accList){
+            accIds.add(acc.Id);
+        }
+        List<Contact>conList=[SELECT Id,AccountId FROM Contact WHERE AccountId IN:accIds];
+        for(Account ac:accList){
+            ac.Count_Number_Of_Contact__c=conList.size();
+        }
+    }
+
+    //Task 6
+    public static void updateRelConName(List<Account> accList, Map<Id,Account> oldAc, Map<Id,Account> newAc){
+        Set<Id>accIds=new Set<Id>();
+        List<Contact>conList=new List<Contact>();
+        for(Account acc:accList){
+            Account oldAcc=oldAc.get(acc.Id);
+            if(acc.Name != oldAcc.Name)
+            accIds.add(acc.Id);
+        }
+        List<Contact>relCon=[SELECT Id,AccountId FROM Contact WHERE AccountId IN:accIds];
+        for(Contact con:relCon){
+            Account newAcc=newAc.get(con.AccountId);
+            if(newAcc!=Null){
+                con.LastName=newAcc.Name;
+                con.AccountId=newAcc.Id;
+                conList.add(con);
+            }
+        }
+        if(!conList.isEmpty()){
+            update conList;
         }
     }
 }

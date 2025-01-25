@@ -1,9 +1,9 @@
-public class BatchOppProcessor implements Database.Batchable<sObject>,Database.stateful{
+public class BatchOppProcessor implements Database.Batchable<sObject>, Database.stateful{
     public Integer recordCount=0;
     public Database.QueryLocator Start(Database.BatchableContext bc){
         return Database.getQueryLocator('SELECT Id, LeadSource FROM Opportunity');
     }
-    public void execute(Database.BatchableContext bc,List<Opportunity>oppList){
+    public void execute(Database.BatchableContext bc,List<Opportunity> oppList){
         if(!oppList.isEmpty()){
             for(Opportunity opp:oppList){
                 opp.LeadSource='Web';

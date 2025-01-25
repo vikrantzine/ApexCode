@@ -2,9 +2,9 @@
 //Assignment-5
 //Question 1
 public with sharing class QueueableContactInsert implements Queueable{
-    private List<Id>accIds;
-    public QueueableContactInsert(List<Id>accIds){
-        this.accIds=accIds;
+    private List<Id> accIds;
+    public QueueableContactInsert(List<Id> accId){
+        this.accIds=accId;
     }
     public void execute(QueueableContext context){
         List<Contact>conList=new List<Contact>();
