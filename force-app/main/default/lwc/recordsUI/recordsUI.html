@@ -1,0 +1,57 @@
+<template>
+    <div class="slds-box">
+        <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+            <div class="slds-col slds-size_1-of-12">
+                <label class="slds-form-element_label" for="objectCombobox">Select Objects</label>
+            </div>
+            <div class="slds-col slds-col slds-size_2-of-4">
+                <lightning-combobox
+                    name="objects"
+                    
+                    value={selectedSObjects}
+                    placeholder="Select Object"
+                    options={sObjectOptions}
+                    onchange={handleSObjectChange}>
+                </lightning-combobox>
+            </div>
+            <div class="slds-col slds-col slds-size_1-of-4">
+                <lightning-button label="Create New Record" onclick={createNewRecord}></lightning-button>
+            </div>
+        </div>
+    </div> 
+        <div class="slds-box">
+            <div class="slds-grid slds-gutters">
+                <div class="slds-col slds-large-size_2-of-12">
+                    <div class="slds-scrollable_y" style="height:19rem;width:15rem" tabindex="0">
+                        <div if:true={fields}>
+                            <div>
+                                <label>Select Fields</label>
+                                <lightning-checkbox-group name="Fields"
+                                                      
+                                                      options={fields}
+                                                      value={selectedFields}
+                                                      onchange={handleFieldSelectionEvent}>
+                                </lightning-checkbox-group>
+                            </div>
+                    </div>
+                </div>
+                <div>
+                    <lightning-button label="Show Data" variant="brand" onclick={fetchRecords}></lightning-button>
+                </div>   
+            </div>
+            <div class="slds-col slds-large-size_10-of-12">
+                <div class="slds-scrollable_y" style="height:19rem;width:75rem" tabindex="0">
+                    <div if:true={records}>
+                        <label>Records</label>
+                        <lightning-datatable
+                                label="Records"
+                                key-field="id"
+                                data={records}
+                                columns={columns}>
+                        </lightning-datatable>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
