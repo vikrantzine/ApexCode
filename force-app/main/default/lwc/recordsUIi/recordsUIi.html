@@ -1,0 +1,25 @@
+<template>
+    <div class="slds-box slds-theme_default">
+        <div class="slds-grid slds-grid_align-center slds-grid_vertical-align-center">
+            <div class="slds-col slds-size_1-of-12">
+                <label class="slds-form-element_label" for="objectCombobox">Select Objects</label>
+            </div>
+            <div class="slds-col slds-col slds-size_2-of-4">
+                <lightning-combobox
+                    name="objects"
+                    
+                    value={selectedSObjects}
+                    placeholder="Select Object"
+                    options={sObjectOptions}
+                    onchange={handleSObjectChange}>
+                </lightning-combobox>
+            </div>
+            <div class="slds-col slds-col slds-size_1-of-4">
+                <lightning-button label="Create New Record" onclick={createNewRecord}></lightning-button>
+            </div>
+        </div>
+    </div>
+    <template if:true={selectedSObjects}>
+        <c-field-selector object-name={selectedSObjects}></c-field-selector>
+    </template>
+</template>
