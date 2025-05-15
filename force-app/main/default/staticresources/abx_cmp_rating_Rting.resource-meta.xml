@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Public</cacheControl>
+    <contentType>text</contentType>
+    <description>{&quot;name&quot;:&quot;Rting&quot;,&quot;label&quot;:&quot;Rting&quot;,&quot;type&quot;:&quot;recordPage&quot;,&quot;objectName&quot;:&quot;Account&quot;,&quot;category&quot;:&quot;rating&quot;,&quot;organizationId&quot;:&quot;00DdL000005J0vxUAC&quot;}</description>
+</StaticResource>

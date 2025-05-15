@@ -8,7 +8,7 @@ public with sharing class BatchUpdateConMailingAddressTest {
             Account acc=new Account(Name='Account'+i,BillingCity='New York',BillingCountry='USA');
             accList.add(acc);
         }
-        insert accList;
+        insert accList; 
         for(Account acc:accList){
             Contact con=new Contact();
             con.LastName='Test';

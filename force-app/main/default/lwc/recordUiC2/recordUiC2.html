@@ -1,0 +1,14 @@
+<template>
+    <div class="slds-box">
+        <lightning-button label="Show Data" variant="brand" onclick={fetchRecords}></lightning-button>
+
+        <template if:true={records}>
+            <label>Records</label>
+            <lightning-datatable
+                key-field="id"
+                data={records}
+                columns={columns}>
+            </lightning-datatable>
+        </template>
+    </div>
+</template>
